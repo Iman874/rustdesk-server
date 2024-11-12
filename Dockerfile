@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   rustdesk-server:
     container_name: rustdesk-server
