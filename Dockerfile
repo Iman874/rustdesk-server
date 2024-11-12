@@ -1,8 +1,5 @@
-# Tahap builder untuk membangun binary secara statis
+# Tahap builder untuk membangun binary
 FROM rust:latest as builder
-
-# Install dependencies untuk musl (untuk kompilasi statis)
-RUN apt-get update && apt-get install -y musl-tools
 
 # Atur direktori kerja
 WORKDIR /app
@@ -11,18 +8,19 @@ WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
 
-# Atur target musl untuk binary statis dan compile
-RUN rustup target add x86_64-unknown-linux-musl
-RUN cargo build --release --target=x86_64-unknown-linux-musl
+# Build binary dalam mode release
+RUN cargo build --release
 
-# Tahap final, untuk menyalin hasil binary yang sudah dikompilasi ke dalam image ringan
-FROM alpine:latest
+# Tahap final untuk membuat image runtime yang ringan
+FROM ubuntu:latest
 
-# Install OpenSSL dan library pendukung jika diperlukan
-RUN apk add --no-cache openssl
+# Install dependencies yang dibutuhkan untuk menjalankan binary
+RUN apt-get update && \
+    apt-get install -y libssl-dev ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Salin binary dari tahap builder
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/hbbr /usr/local/bin/hbbr
+COPY --from=builder /app/target/release/hbbr /usr/local/bin/hbbr
 
 # Set environment variable yang diperlukan
 ENV RUST_BACKTRACE=1
