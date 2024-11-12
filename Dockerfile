@@ -1,32 +1,34 @@
-# Tahap pertama: Build dari Rust source code
-FROM rust:latest AS builder
+# Tahap builder untuk membangun binary secara statis
+FROM rust:latest as builder
 
-# Buat direktori kerja
+# Install dependencies untuk musl (untuk kompilasi statis)
+RUN apt-get update && apt-get install -y musl-tools
+
+# Atur direktori kerja
 WORKDIR /app
 
-# Salin semua file dan direktori dari project ke dalam Docker container
-COPY . .
+# Salin file Cargo dan source code
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
 
-# Kompilasi server RustDesk dalam mode release
-RUN cargo build --release --bin hbbr && cargo build --release --bin hbbs
+# Atur target musl untuk binary statis dan compile
+RUN rustup target add x86_64-unknown-linux-musl
+RUN cargo build --release --target=x86_64-unknown-linux-musl
 
-# Tahap kedua: Runtime environment yang lebih kecil
-FROM debian:buster-slim
+# Tahap final, untuk menyalin hasil binary yang sudah dikompilasi ke dalam image ringan
+FROM alpine:latest
 
-# Install dependency yang diperlukan
-RUN apt-get update && \
-    apt-get install -y libssl-dev && \
-    rm -rf /var/lib/apt/lists/*
+# Install OpenSSL dan library pendukung jika diperlukan
+RUN apk add --no-cache openssl
 
-# Direktori kerja di tahap runtime
-WORKDIR /app
+# Salin binary dari tahap builder
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/hbbr /usr/local/bin/hbbr
 
-# Salin executable yang dikompilasi dari tahap build
-COPY --from=builder /app/target/release/hbbs /app/hbbs
-COPY --from=builder /app/target/release/hbbr /app/hbbr
+# Set environment variable yang diperlukan
+ENV RUST_BACKTRACE=1
 
-# Ekspose port untuk relay dan rendezvous
-EXPOSE 21114 21115
+# Tentukan port aplikasi
+EXPOSE 21115
 
-# Jalankan server dengan perintah default
-CMD ["./hbbr", "--relay"]
+# Jalankan aplikasi
+CMD ["hbbr"]
