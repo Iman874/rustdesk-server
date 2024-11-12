@@ -4,16 +4,10 @@ FROM rust:latest AS builder
 # Buat direktori kerja
 WORKDIR /app
 
-# Salin file Cargo.toml dan Cargo.lock ke direktori kerja untuk dependency
-COPY Cargo.toml Cargo.lock ./
-
-# Unduh dependency tanpa kode sumber
-RUN cargo fetch
-
-# Salin seluruh kode sumber ke dalam direktori kerja
+# Salin semua file dan direktori dari project ke dalam Docker container
 COPY . .
 
-# Kompilasi RustDesk server dalam mode release
+# Kompilasi server RustDesk dalam mode release
 RUN cargo build --release --bin hbbr && cargo build --release --bin hbbs
 
 # Tahap kedua: Runtime environment yang lebih kecil
@@ -34,5 +28,5 @@ COPY --from=builder /app/target/release/hbbr /app/hbbr
 # Ekspose port untuk relay dan rendezvous
 EXPOSE 21114 21115
 
-# Jalankan server dengan perintah default, bisa diubah sesuai kebutuhan
+# Jalankan server dengan perintah default
 CMD ["./hbbr", "--relay"]
