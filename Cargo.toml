@@ -4,7 +4,7 @@ version = "1.1.12"
 authors = ["rustdesk <info@rustdesk.com>"]
 edition = "2021"
 build = "build.rs"
-default-run = "hbbs"
+default-run = "hbbr"
 
 [[bin]]
 name = "hbbr"
