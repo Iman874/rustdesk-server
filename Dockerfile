@@ -11,4 +11,3 @@ COPY . .
 RUN cargo build --release
 
 # Jalankan server dengan port yang disesuaikan
-CMD ["./target/release/rustdesk-server"]
