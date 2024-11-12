@@ -1,13 +1,29 @@
-# Gunakan image Rust
-FROM rust:latest
+version: '3'
 
-# Buat direktori untuk aplikasi
-WORKDIR /app
+services:
+  rustdesk-server:
+    container_name: rustdesk-server
+    ports:
+      - 21115:21115
+      - 21116:21116
+      - 21116:21116/udp
+      - 21117:21117
+      - 21118:21118
+      - 21119:21119
+    image: rustdesk/rustdesk-server-s6:latest
+    environment:
+      - "RELAY=rustdesk.example.com:21117"
+      - "ENCRYPTED_ONLY=1"
+      - "DB_URL=/db/db_v2.sqlite3"
+    volumes:
+      - ./db:/db
+    restart: unless-stopped
+    secrets:
+      - key_pub
+      - key_priv
 
-# Salin semua file ke dalam container
-COPY . .
-
-# Install dependencies dan build
-RUN cargo build --release
-
-# Jalankan server dengan port yang disesuaikan
+secrets:
+  key_pub:
+    file: secrets/id_ed25519.pub
+  key_priv:
+    file: secrets/id_ed25519      
