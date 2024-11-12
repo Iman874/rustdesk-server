@@ -5,8 +5,8 @@ FROM rust:latest as builder
 WORKDIR /app
 
 # Salin file Cargo dan source code
-COPY Cargo.toml Cargo.lock ./
-COPY src ./src
+COPY Cargo.toml Cargo.lock 
+COPY src 
 
 # Jalankan cargo build tanpa release untuk debugging
 RUN cargo build --verbose
