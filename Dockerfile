@@ -12,7 +12,7 @@ services:
       - 21119:21119
     image: rustdesk/rustdesk-server-s6:latest
     environment:
-      - "RELAY=rustdesk.example.com:21117"
+      - "RELAY=rustdesk-server-production-621a.up.railway.app:21115"
       - "ENCRYPTED_ONLY=1"
       - "DB_URL=/db/db_v2.sqlite3"
     volumes:
