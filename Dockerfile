@@ -15,8 +15,7 @@ services:
       - "RELAY=rustdesk-server-production-621a.up.railway.app:21115"
       - "ENCRYPTED_ONLY=1"
       - "DB_URL=/db/db_v2.sqlite3"
-    volumes:
-      - ./db:/db
+
     restart: unless-stopped
     secrets:
       - key_pub
