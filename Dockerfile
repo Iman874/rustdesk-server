@@ -8,7 +8,10 @@ WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
 
-# Build binary dalam mode release
+# Jalankan cargo build tanpa release untuk debugging
+RUN cargo build --verbose
+
+# Jika build berhasil, lanjutkan ke release build
 RUN cargo build --release
 
 # Tahap final untuk membuat image runtime yang ringan
